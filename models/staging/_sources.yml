@@ -1,0 +1,60 @@
+version: 2
+
+sources:
+  - name: thelook
+    database: bigquery-public-data
+    schema: thelook_ecommerce
+    description: "Public e-commerce dataset from BigQuery public datasets."
+    tables:
+      - name: orders
+        description: "One row per order."
+        columns:
+          - name: order_id
+            tests: [unique, not_null]
+          - name: user_id
+            tests: [not_null]
+          - name: status
+          - name: created_at
+
+      - name: order_items
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: order_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('thelook', 'orders')
+                    field: order_id
+
+      - name: users
+        columns:
+          - name: id
+            tests: [unique, not_null]
+
+      - name: products
+        columns:
+          - name: id
+            tests: [unique, not_null]
+
+  - name: raw
+    database: syed-razvi-analytics-demo
+    schema: raw
+    description: "Custom marketing data loaded manually."
+    tables:
+      - name: marketing_campaigns
+        columns:
+          - name: campaign_id
+            tests: [unique, not_null]
+      - name: campaign_daily_spend
+        columns:
+          - name: campaign_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw', 'marketing_campaigns')
+                    field: campaign_id
+          - name: spend_date
+            tests: [not_null]

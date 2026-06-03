@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: "One row per order with derived revenue and return flags."
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: gross_revenue
+        description: "Sum of sale_price across order_items for the order."
+
+  - name: dim_users
+    columns:
+      - name: user_id
+        tests: [unique, not_null]
+
+  - name: fct_campaign_performance
+    description: "Campaign-day grain. ROAS uses naive same-day same-country attribution — documented limitation."
+    columns:
+      - name: campaign_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_campaigns')
+                field: campaign_id
